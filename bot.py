@@ -1,15 +1,18 @@
 # bot.py
 import os
 
-import discord
+from discord import guild
+from discord import channel
+from discord import utils
+from discord import Client
 from dotenv import load_dotenv
-import random
+from random import shuffle
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 VOICE_CHANNEL = os.getenv('VOICE_CHANNEL')
-client = discord.Client()
+client = Client()
 
 
 async def send_card(member,card):
@@ -26,7 +29,7 @@ async def send_card(member,card):
 async def on_ready():
 
     #verify all names are actually names in the server and create a list of their members
-    guild = discord.utils.find(lambda g: g.name == GUILD, client.guilds)
+    guild = utils.find(lambda g: g.name == GUILD, client.guilds)
     print(
         f'{client.user} is connected to the following guild:\n'
         f'{guild.name}(id: {guild.id})\n'
@@ -75,8 +78,8 @@ async def on_ready():
             cardList.append(genericRed)
     
     # shuffle the cards and member list for room sorting
-    random.shuffle(cardList)
-    random.shuffle(memberList)
+    shuffle(cardList)
+    shuffle(memberList)
 
 
     # send out cards to each member
