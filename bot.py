@@ -8,7 +8,7 @@ import random
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
-
+VOICE_CHANNEL = os.getenv('VOICE_CHANNEL')
 client = discord.Client()
 
 
@@ -25,11 +25,6 @@ async def send_card(member,card):
 @client.event
 async def on_ready():
 
-    #get names from file
-    nameFile = open('names.txt')
-    names = nameFile.readlines()
-    nameFile.close()
-
     #verify all names are actually names in the server and create a list of their members
     guild = discord.utils.find(lambda g: g.name == GUILD, client.guilds)
     print(
@@ -37,16 +32,26 @@ async def on_ready():
         f'{guild.name}(id: {guild.id})\n'
     )
 
-    memberList = []
+    # find the correct channel object
+    voiceChannel = None
+    for channel in guild.channels:
+        if(VOICE_CHANNEL in str(channel.name)):
+            voiceChannel = channel
+            print(str(channel.name) + " selected")
+            break
+    
+    memberList = voiceChannel.members
 
-    for member in guild.members:
-        for name in names:
-            name = name.strip('\n')
-            if str(name) in str(member.name):
-                print(name + " is in the server")
-                memberList.append(member)
+    # for member in guild.members:
+    #     for name in names:
+    #         name = name.strip('\n')
+    #         if str(name) in str(member.name):
+    #             print(name + " is in the server\n")
+    #             memberList.append(member)
 
-    print()
+    #         if len(guild.members) > len(names):
+    #             raise Exception("One or more of the names is not in the server. Check your spelling. ")
+
     # Send out cards based on the number of people in the member list
 
     #generate card list
@@ -94,9 +99,6 @@ async def on_ready():
 
         #incriment i for next card
         i+=1
-
-
-
 
 #----- Main -------------
 client.run(TOKEN)
