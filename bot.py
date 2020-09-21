@@ -13,12 +13,15 @@ client = discord.Client()
 
 
 async def send_card(member,card):
-    message =   " Role" + card['name'] + \
-                "\nColor: " + card['color'] + \
-                "\n Goal: " + card['goal']
+    message =   "\n\n------New Game!------" + \
+                  "\nRole:    " + card['name'] + \
+                  "\nColor:   " + card['color'] + \
+                  "\nGoal:    " + card['goal']
     await member.create_dm()
     await member.dm_channel.send(message)
 
+
+# Ran once at startup
 @client.event
 async def on_ready():
 
@@ -92,11 +95,8 @@ async def on_ready():
         #incriment i for next card
         i+=1
 
-@client.event
-async def on_member_join(member):
-    await member.create_dm()
-    await member.dm_channel.send(
-        f'Hi {member.name}, welcome to my Discord server!'
-    )
 
+
+
+#----- Main -------------
 client.run(TOKEN)
