@@ -1,10 +1,12 @@
 # bot.py
 import os
+import card
 
-from discord import guild
+#from discord import guild
 from discord import channel
 from discord import utils
 from discord import Client
+from discord import message
 from dotenv import load_dotenv
 from random import shuffle
 
@@ -14,9 +16,12 @@ GUILD = os.getenv('DISCORD_GUILD')
 VOICE_CHANNEL = os.getenv('VOICE_CHANNEL')
 client = Client()
 
+# setting the guild as a global variable
+curGuild = None
 
+# used for sending a card to a user
 async def send_card(member,card):
-    message =   "\n\n------New Game!------" + \
+    message =   "------New Game!------" + \
                   "\nRole:    " + card['name'] + \
                   "\nColor:   " + card['color'] + \
                   "\nGoal:    " + card['goal']
@@ -29,41 +34,36 @@ async def send_card(member,card):
 async def on_ready():
 
     #verify all names are actually names in the server and create a list of their members
-    guild = utils.find(lambda g: g.name == GUILD, client.guilds)
+    # and make the guild variable global for use in later function
+    global curGuild
+    curGuild = utils.find(lambda g: g.name == GUILD, client.guilds)
     print(
         f'{client.user} is connected to the following guild:\n'
-        f'{guild.name}(id: {guild.id})\n'
+        f'{curGuild.name}(id: {curGuild.id})\n'
     )
+
+
+# Send out messages for a new game
+async def new_game():
 
     # find the correct channel object
     voiceChannel = None
-    for channel in guild.channels:
+    for channel in curGuild.channels:
         if(VOICE_CHANNEL in str(channel.name)):
             voiceChannel = channel
-            print(str(channel.name) + " selected")
+            print(str(channel.name) + " selected\n")
             break
     
     memberList = voiceChannel.members
 
-    # for member in guild.members:
-    #     for name in names:
-    #         name = name.strip('\n')
-    #         if str(name) in str(member.name):
-    #             print(name + " is in the server\n")
-    #             memberList.append(member)
 
-    #         if len(guild.members) > len(names):
-    #             raise Exception("One or more of the names is not in the server. Check your spelling. ")
-
-    # Send out cards based on the number of people in the member list
-
-    #generate card list
-    president   = {'name':'President','color':'Blue','goal':'Avoid the bomber'}
-    bomber      = {'name':'Bomber','color':'red','goal':'Be with the president'}
-    genericBlue = {'name':'Blue team','color':'Blue','goal':'Keep the president away from the bomber'}
-    genericRed  = {'name':'Red team','color':'Red','goal':'Get the bomber to be with the president'}
-    gambler     = {'name':'Gambler','color':'Grey','goal':'Guess if red blue or neither team won'}
-
+    # Call in cards
+    president = card.president
+    bomber = card.bomber
+    gambler = card.gambler
+    genericRed = card.genericRed
+    genericBlue = card.genericBlue
+    
     cardList = [president,bomber]
 
     # check for gambler if odd number
@@ -102,6 +102,16 @@ async def on_ready():
 
         #incriment i for next card
         i+=1
+
+# Take in a message for a new game and start a new one
+@client.event
+async def on_message(message):
+    # evaluate if a player wants to play start a new game
+    if 'new game' in message.content:
+        await new_game()
+    # do nothing if they don't send "new game"
+    else:
+        pass
 
 #----- Main -------------
 client.run(TOKEN)
