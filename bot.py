@@ -19,15 +19,6 @@ client = Client()
 # setting the guild as a global variable
 curGuild = None
 
-# used for sending a card to a user
-async def send_card(member,card):
-    message =   "------New Game!------" + \
-                  "\nRole:    " + card['name'] + \
-                  "\nColor:   " + card['color'] + \
-                  "\nGoal:    " + card['goal']
-    await member.create_dm()
-    await member.dm_channel.send(message)
-
 
 # Ran once at startup
 @client.event
@@ -42,6 +33,15 @@ async def on_ready():
         f'{curGuild.name}(id: {curGuild.id})\n'
     )
 
+# used for sending a card to a user
+async def send_card(member,card,roomNumber):
+    message =   "------New Game!------" + \
+                  "\nRole:    " + card['name'] + \
+                  "\nColor:   " + card['color'] + \
+                  "\nGoal:    " + card['goal'] + \
+                  "\nStarting room: " + str(roomNumber)
+    await member.create_dm()
+    await member.dm_channel.send(message)
 
 # Send out messages for a new game
 async def new_game():
@@ -69,7 +69,7 @@ async def new_game():
     # check for gambler if odd number
     if(len(memberList)%2 > 0):
         cardList.append(gambler)
-    
+
     # add all other players, alternating odd and even
     for i in range(len(cardList),len(memberList)):
         if(i%2 > 0):
@@ -83,22 +83,19 @@ async def new_game():
 
 
     # send out cards to each member
-    print("Sending out the cards")
+    print("\nSending out the cards")
     print("There are " + str(len(cardList)) + " cards")
     print("There are " + str(len(memberList)) + " members")
     print()
     i = 0
     for member in memberList:
-        print(member.name + " gets the " + cardList[i]['name'] + ' card and starts in room ' + str(i%2 + 1))
+        roomNumber = str(i%2 + 1)
+
+        # commented out unless testing
+        # print(member.name + " gets the " + cardList[i]['name'] + ' card and starts in room ' + roomNumber)
  
         # send the card
-        await send_card(member,cardList[i])
-        # message =   " Role: " + cardList[i]['name'] + \
-        #     "\nColor: " + cardList[i]['color'] + \
-        #     "\nGoal: " + cardList[i]['goal'] + \
-        #     "\nStarting Room: "    + str(i%2 + 1)
-        # await member.create_dm()
-        # await member.dm_channel.send(message)
+        await send_card(member,cardList[i],roomNumber)
 
         #incriment i for next card
         i+=1
