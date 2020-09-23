@@ -1,6 +1,7 @@
 # bot.py
 import os
 import card
+from configparser import ConfigParser
 
 #from discord import guild
 from discord import channel
@@ -10,10 +11,13 @@ from discord import message
 from dotenv import load_dotenv
 from random import shuffle
 
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
-VOICE_CHANNEL = os.getenv('VOICE_CHANNEL')
+# load in settings and parameters
+#configurable parameters that can be changed later
+config = ConfigParser()
+config.read('settings.ini')
+GUILD = config['Server']['server_name']
+VOICE_CHANNEL = config['Server']['voice_channel_name']
+TOKEN = config['Bot']['token']
 client = Client()
 
 # setting the guild as a global variable
@@ -28,6 +32,7 @@ async def on_ready():
     # and make the guild variable global for use in later function
     global curGuild
     curGuild = utils.find(lambda g: g.name == GUILD, client.guilds)
+
     print(
         f'{client.user} is connected to the following guild:\n'
         f'{curGuild.name}(id: {curGuild.id})\n'
